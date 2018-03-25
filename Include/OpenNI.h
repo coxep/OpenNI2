@@ -1493,8 +1493,8 @@ public:
 	points in space.  Please see the OpenNi 2.0 Programmer's Guide for more information about
 	registration.
 
-	See @ref ImageRegistrationMode for a list of valid settings to pass to this function. 
-	
+	See @ref ImageRegistrationMode for a list of valid settings to pass to this function.
+
 	It is a good practice to first check if the mode is supported by calling @ref isImageRegistrationModeSupported().
 
 	@param [in] mode Desired new value for the image registration mode.
@@ -1637,6 +1637,35 @@ public:
 
 	/** @internal **/
 	inline Status _openEx(const char* uri, const char* mode);
+
+/**
+  * Changes the current state of the laser emitter.  If enable is true, then the emitter will be enabled.
+  * If false, then the emitter will be disabled.
+  *
+  * @param [in] repeat New value for repeat -- true to enable, false to disable
+  * @returns Status code indicating success or failure of this operations.
+  */
+  int getEmitterState() const
+  {
+    int enable = 0x00;
+    Status rc = getProperty<int>(DEVICE_PROPERTY_LASER_EMITTER, &enable);
+    if (rc != STATUS_OK)
+    {
+      // Return something other than 1 or 0 to indicate something is wrong
+      return 100;
+    }
+
+    return enable;
+  }
+
+  Status setEmitterState(bool enable)
+  {
+    if (!isValid())
+    {
+      return STATUS_NO_DEVICE;
+    }
+    return setProperty<OniBool>(DEVICE_PROPERTY_LASER_EMITTER, enable ? TRUE : FALSE);
+  }
 
 private:
 	Device(const Device&);

@@ -150,7 +150,7 @@ private:
 	XnStatus SetImageCmosRegister(const XnControlProcessingData* pRegister);
 	XnStatus WriteAHB(const XnAHBData* pData);
 	XnStatus SetLedState(XnUInt16 nLedId, XnUInt16 nState);
-	XnStatus SetEmitterState(XnBool bActive);
+  XnStatus SetEmitterState(XnBool bActive);
 	XnStatus SetFirmwareFrameSync(XnBool bOn);
 	XnStatus SetI2C(const XnI2CWriteData* pI2CWriteData);
 	XnStatus SetFirmwareLogFilter(XnUInt32 nFilter);

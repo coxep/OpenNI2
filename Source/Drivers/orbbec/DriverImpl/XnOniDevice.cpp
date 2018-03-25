@@ -410,35 +410,55 @@ OniStatus XnOniDevice::setProperty(int propertyId, const void* data, int dataSiz
 {
 	switch (propertyId)
 	{
-	case ONI_DEVICE_PROPERTY_IMAGE_REGISTRATION:
-		{
-			if (dataSize == sizeof(OniImageRegistrationMode))
-			{
-				OniImageRegistrationMode* mode = (OniImageRegistrationMode*)data;
+  case ONI_DEVICE_PROPERTY_IMAGE_REGISTRATION:
+    {
+      if (dataSize == sizeof(OniImageRegistrationMode))
+      {
+        OniImageRegistrationMode* mode = (OniImageRegistrationMode*)data;
 
-				// Find the depth stream in the sensor.
-				XnDeviceStream* pDepth = NULL;
-				XnStatus xnrc = m_sensor.GetStream(XN_STREAM_NAME_DEPTH, &pDepth);
-				if (xnrc != XN_STATUS_OK)
-				{
-					return ONI_STATUS_BAD_PARAMETER;
-				}
+        // Find the depth stream in the sensor.
+        XnDeviceStream* pDepth = NULL;
+        XnStatus xnrc = m_sensor.GetStream(XN_STREAM_NAME_DEPTH, &pDepth);
+        if (xnrc != XN_STATUS_OK)
+        {
+          return ONI_STATUS_BAD_PARAMETER;
+        }
 
-				// Set the mode in the depth stream.
-				XnUInt64 val = (*mode == ONI_IMAGE_REGISTRATION_DEPTH_TO_COLOR) ? 1 : 0;
-				xnrc = pDepth->SetProperty(XN_STREAM_PROPERTY_REGISTRATION, val);
-				if (xnrc != XN_STATUS_OK)
-				{
-					return ONI_STATUS_ERROR;
-				}
-			}
-			else
-			{
-				m_driverServices.errorLoggerAppend("Unexpected size: %d != %d\n", dataSize, sizeof(OniImageRegistrationMode));
-				return ONI_STATUS_ERROR;
-			}
-		}
-		break;
+        // Set the mode in the depth stream.
+        XnUInt64 val = (*mode == ONI_IMAGE_REGISTRATION_DEPTH_TO_COLOR) ? 1 : 0;
+        xnrc = pDepth->SetProperty(XN_STREAM_PROPERTY_REGISTRATION, val);
+        if (xnrc != XN_STATUS_OK)
+        {
+          return ONI_STATUS_ERROR;
+        }
+      }
+      else
+      {
+        m_driverServices.errorLoggerAppend("Unexpected size: %d != %d\n", dataSize, sizeof(OniImageRegistrationMode));
+        return ONI_STATUS_ERROR;
+      }
+    }
+    break;
+  case ONI_DEVICE_PROPERTY_LASER_EMITTER:
+    {
+      if (dataSize == sizeof(OniBool))
+      {
+        OniBool* mode = (OniBool*)data;
+        // Set the emitter state
+        XnStatus xnrc = m_sensor.SetEmitterState(*mode);
+//        XnStatus xnrc = m_sensor.GetStream(XN_STREAM_NAME_DEPTH, &pDepth);
+        if (xnrc != XN_STATUS_OK)
+        {
+          return ONI_STATUS_BAD_PARAMETER;
+        }
+      }
+      else
+      {
+        m_driverServices.errorLoggerAppend("Unexpected size: %d != %d\n", dataSize, sizeof(OniBool));
+        return ONI_STATUS_ERROR;
+      }
+    }
+    break;
 	default:
 		XnStatus nRetVal = m_sensor.DeviceModule()->SetProperty(propertyId, data, dataSize);
 		if (nRetVal != XN_STATUS_OK)
@@ -455,7 +475,8 @@ OniBool XnOniDevice::isPropertySupported(int propertyId)
 		propertyId == ONI_DEVICE_PROPERTY_IMAGE_REGISTRATION ||
 		propertyId == ONI_DEVICE_PROPERTY_FIRMWARE_VERSION ||
 		propertyId == ONI_DEVICE_PROPERTY_HARDWARE_VERSION ||
-		propertyId == ONI_DEVICE_PROPERTY_SERIAL_NUMBER)
+		propertyId == ONI_DEVICE_PROPERTY_SERIAL_NUMBER ||
+		propertyId == ONI_DEVICE_PROPERTY_LASER_EMITTER)
 	{
 		return TRUE;
 	}
