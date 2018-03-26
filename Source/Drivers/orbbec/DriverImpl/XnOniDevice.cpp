@@ -394,6 +394,29 @@ OniStatus XnOniDevice::getProperty(int propertyId, void* data, int* pDataSize)
 			}
 		}
 		break;
+
+	case ONI_DEVICE_PROPERTY_LASER_EMITTER:
+	{
+	  if (*pDataSize == sizeof(OniBool))
+	  {
+//	    OniBool* sEmitter = (OniBool*)data;
+	    OniGeneralBuffer buffer;
+	    XnStatus xnrc = m_sensor.m_EmitterStatus.GetValue(buffer);
+	    if (xnrc != XN_STATUS_OK)
+	    {
+	      return ONI_STATUS_BAD_PARAMETER;
+	    }
+
+	    // Update the return value
+      data = buffer.data;
+	  }
+	  else
+	  {
+      m_driverServices.errorLoggerAppend("Unexpected size: %d != %d\n", *pDataSize, sizeof(OniBool));
+      return ONI_STATUS_ERROR;
+	  }
+	}
+	break;
 	default:
 		XnStatus nRetVal = m_sensor.DeviceModule()->GetProperty(propertyId, data, pDataSize);
 		if (nRetVal != XN_STATUS_OK)

@@ -1645,17 +1645,19 @@ public:
   * @param [in] repeat New value for repeat -- true to enable, false to disable
   * @returns Status code indicating success or failure of this operations.
   */
-  int getEmitterState() const
+  Status getEmitterState(bool enabled) const
   {
-    int enable = 0x00;
-    Status rc = getProperty<int>(DEVICE_PROPERTY_LASER_EMITTER, &enable);
-    if (rc != STATUS_OK)
+    if (!isValid())
     {
-      // Return something other than 1 or 0 to indicate something is wrong
-      return 100;
+      return STATUS_NO_DEVICE;
     }
 
-    return enable;
+    int * state;
+    Status rc = getProperty<int>(DEVICE_PROPERTY_LASER_EMITTER, state);
+
+    enabled = (*state == 0 ? true : false);
+
+    return rc;
   }
 
   Status setEmitterState(bool enable)
@@ -1664,6 +1666,7 @@ public:
     {
       return STATUS_NO_DEVICE;
     }
+
     return setProperty<OniBool>(DEVICE_PROPERTY_LASER_EMITTER, enable ? TRUE : FALSE);
   }
 
